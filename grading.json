@@ -1,0 +1,13 @@
+[
+ {"test": "IsOddIsEvenTest",      "name": "OddsAndEvens: isOdd / isEven",                    "points": 4},
+ {"test": "OddEvenArrayTest",     "name": "OddsAndEvens: isOddArray / isEvenArray",          "points": 10},
+ {"test": "OddEvenArrayListTest", "name": "OddsAndEvens: isOddArrayList / isEvenArrayList",  "points": 8},
+ {"test": "FactIterTest",         "name": "Factorial: factIter",                             "points": 5},
+ {"test": "FactRecurTest",        "name": "Factorial: factRecur",                            "points": 8},
+ {"test": "FibIterTest",          "name": "Fibonacci: fibIter",                              "points": 6},
+ {"test": "FibRecurTest",         "name": "Fibonacci: fibRecur",                             "points": 9},
+ {"test": "LaughTest",            "name": "ThreeRules: laugh",                               "points": 6},
+ {"test": "AddUpArrayTest",       "name": "ThreeRules: addUp(int[])",                        "points": 8},
+ {"test": "AddUpListTest",        "name": "ThreeRules: addUp(ArrayList)",                    "points": 6},
+ {"test": "CounterTest",          "name": "Counter: count without size()",                   "points": 10}
+]

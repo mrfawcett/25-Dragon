@@ -1,0 +1,146 @@
+name: Autograding Tests
+'on':
+  - push
+  - workflow_dispatch
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Integrity check - tests, pom.xml and grading.json must be unchanged
+        run: |
+          EXPECTED="940ec85536ed4496901679847f4c314a9769bceb94285d860736a39d27f42fab"
+          ACTUAL=$( (for f in $(find src/test/java -type f -name '*.java' | LC_ALL=C sort) pom.xml grading.json; do sed 's/\r$//' "$f"; done) | sha256sum | cut -d' ' -f1)
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::The test files, pom.xml, or grading.json in this repository differ from the assignment template. Grading has been stopped. Restore the original files (git checkout origin/main -- src/test pom.xml grading.json) and push again."
+            exit 1
+          fi
+          echo "Integrity check passed."
+      - name: "OddsAndEvens: isOdd / isEven (4)"
+        id: isoddiseven
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "OddsAndEvens: isOdd / isEven"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=IsOddIsEvenTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 4
+      - name: "OddsAndEvens: isOddArray / isEvenArray (10)"
+        id: oddevenarray
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "OddsAndEvens: isOddArray / isEvenArray"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=OddEvenArrayTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 10
+      - name: "OddsAndEvens: isOddArrayList / isEvenArrayList (8)"
+        id: oddevenarraylist
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "OddsAndEvens: isOddArrayList / isEvenArrayList"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=OddEvenArrayListTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 8
+      - name: "Factorial: factIter (5)"
+        id: factiter
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Factorial: factIter"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=FactIterTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 5
+      - name: "Factorial: factRecur (8)"
+        id: factrecur
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Factorial: factRecur"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=FactRecurTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 8
+      - name: "Fibonacci: fibIter (6)"
+        id: fibiter
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Fibonacci: fibIter"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=FibIterTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 6
+      - name: "Fibonacci: fibRecur (9)"
+        id: fibrecur
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Fibonacci: fibRecur"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=FibRecurTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 9
+      - name: "ThreeRules: laugh (6)"
+        id: laugh
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "ThreeRules: laugh"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=LaughTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 6
+      - name: "ThreeRules: addUp(int[]) (8)"
+        id: adduparray
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "ThreeRules: addUp(int[])"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=AddUpArrayTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 8
+      - name: "ThreeRules: addUp(ArrayList) (6)"
+        id: adduplist
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "ThreeRules: addUp(ArrayList)"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=AddUpListTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 6
+      - name: "Counter: count without size() (10)"
+        id: counter
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Counter: count without size()"
+          setup-command: ''
+          command: mvn -B -q test -Dtest=CounterTest -Dsurefire.failIfNoSpecifiedTests=false
+          timeout: 5
+          max-score: 10
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          ISODDISEVEN_RESULTS: "${{ steps.isoddiseven.outputs.result }}"
+          ODDEVENARRAY_RESULTS: "${{ steps.oddevenarray.outputs.result }}"
+          ODDEVENARRAYLIST_RESULTS: "${{ steps.oddevenarraylist.outputs.result }}"
+          FACTITER_RESULTS: "${{ steps.factiter.outputs.result }}"
+          FACTRECUR_RESULTS: "${{ steps.factrecur.outputs.result }}"
+          FIBITER_RESULTS: "${{ steps.fibiter.outputs.result }}"
+          FIBRECUR_RESULTS: "${{ steps.fibrecur.outputs.result }}"
+          LAUGH_RESULTS: "${{ steps.laugh.outputs.result }}"
+          ADDUPARRAY_RESULTS: "${{ steps.adduparray.outputs.result }}"
+          ADDUPLIST_RESULTS: "${{ steps.adduplist.outputs.result }}"
+          COUNTER_RESULTS: "${{ steps.counter.outputs.result }}"
+        with:
+          runners: isoddiseven,oddevenarray,oddevenarraylist,factiter,factrecur,fibiter,fibrecur,laugh,adduparray,adduplist,counter
